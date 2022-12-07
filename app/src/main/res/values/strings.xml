@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">LoginRetrofit</string>
+    <string name="nick">Nombre de Usuario</string>
+    <string name="key">Password</string>
 </resources>
