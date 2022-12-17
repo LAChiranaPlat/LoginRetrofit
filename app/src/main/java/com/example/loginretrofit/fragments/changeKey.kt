@@ -1,16 +1,13 @@
 package com.example.loginretrofit.fragments
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.DialogFragment
 import com.example.loginretrofit.R
-import com.example.loginretrofit.System
-import com.example.loginretrofit.databinding.FragmentRecuperacionBinding
+import com.example.loginretrofit.databinding.FragmentChangeKeyBinding
 import com.example.loginretrofit.myRetrofit.InterfaceRetroft
 import com.example.loginretrofit.myRetrofit.dtLogin
 import com.example.loginretrofit.myRetrofit.dtResponse
@@ -22,12 +19,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import retrofit2.Response
 
-class recuperacion : myFragments() {
 
-    lateinit var views:FragmentRecuperacionBinding
+class changeKey : myFragments() {
+
+    var user=""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        user= arguments?.get("user").toString()
 
     }
 
@@ -36,21 +36,18 @@ class recuperacion : myFragments() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
+        var layout=FragmentChangeKeyBinding.inflate(inflater,container,false)
 
-        views= FragmentRecuperacionBinding.inflate(inflater,container,false)
+        layout.apply {
+            txtCaption.append(" $user")
 
-        views.apply {
+            btnUpdate.setOnClickListener {
 
-            imgClose.setOnClickListener {
-                dismiss()
-            }
-
-            btnUpdateClave.setOnClickListener {
                 CoroutineScope(Dispatchers.IO).launch {
 
                     var respuesta: Response<dtResponse> = myRetroft.retrofit().create(
-                        InterfaceRetroft::class.java).verify(
-                        dtLogin(tilAccount.str())
+                        InterfaceRetroft::class.java).upKey(
+                        dtLogin(user,tilUpdateKey.editText?.text.toString())
                     )
 
                     var data=respuesta.body()
@@ -64,26 +61,10 @@ class recuperacion : myFragments() {
 
                             if(data?.status.equals("OK")){
 
-                               var changeKey=changeKey()
+                                dismiss()
 
-                                var pack=Bundle()
-                                pack.putString("user",tilAccount.str())
-
-                                changeKey.arguments=pack
-
-                               changeKey.show(parentFragmentManager.beginTransaction(),"x")
-
-                                return@runOnUiThread
                             }
 
-                            MaterialAlertDialogBuilder(requireContext())
-                                .setTitle("Usuario no Encontrado")
-                                .setMessage(data?.message.toString())
-                                .setPositiveButton("Entiendo"){x,y->
-                                    tilAccount.editText?.text!!.clear()
-                                    tilAccount.editText?.requestFocus()
-
-                                }.show()
 
                         }
 
@@ -91,10 +72,9 @@ class recuperacion : myFragments() {
 
                 }
             }
-
         }
 
-        return views.root
+        return layout.root
     }
 
 }
